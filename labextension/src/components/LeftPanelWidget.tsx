@@ -263,6 +263,19 @@ interface IRunPipelineArgs {
   pipeline_id?: string;
 }
 
+interface IKatibRunArgs {
+  pipeline_id: string;
+  pipeline_metadata: any;
+}
+
+export interface IKatibExperiment {
+  name?: string;
+  namespace?: string;
+  status: string;
+  trials?: number;
+  maxTrialCount?: number;
+}
+
 const DefaultState: IState = {
   metadata: {
     experiment: { id: '', name: '' },
@@ -1173,17 +1186,60 @@ export class KubeflowKaleLeftPanel extends React.Component<IProps, IState> {
     // RUN
     if (this.state.deploymentType === 'run') {
       if (metadata.katib_run) {
-        const runKatibArgs: any = {
-          pipeline_id: uploadPipeline.pipeline.id,
-          pipeline_metadata: metadata,
-        };
+        this.updateDeployProgress(_deployIndex, {
+          showKatibKFPExperiment: true,
+        });
+        // create a new experiment, using the base name of the currently
+        // selected one
+        const newExpName: string =
+          metadata.experiment.name +
+          '-' +
+          Math.random()
+            .toString(36)
+            .slice(2, 7);
+
+        // create new KFP experiment
+        let kfpExperiment: { id: string; name: string };
         try {
-          await this.executeRpc('katib.create_katib_experiment', runKatibArgs);
+          kfpExperiment = await this.executeRpc('kfp.create_experiment', {
+            experiment_name: newExpName,
+          });
+          this.updateDeployProgress(_deployIndex, {
+            katibKFPExperiment: kfpExperiment,
+          });
         } catch (error) {
           // stop deploy button icon spin
           this.setState({ runDeployment: false });
+          this.updateDeployProgress(_deployIndex, {
+            showKatibProgress: false,
+            katibKFPExperiment: { id: 'error', name: 'error' },
+          });
           throw error;
         }
+
+        this.updateDeployProgress(_deployIndex, { showKatibProgress: true });
+        const runKatibArgs: IKatibRunArgs = {
+          pipeline_id: uploadPipeline.pipeline.id,
+          pipeline_metadata: {
+            ...metadata,
+            experiment_name: kfpExperiment.name,
+          },
+        };
+        let katibExperiment: IKatibExperiment = null;
+        try {
+          katibExperiment = await this.executeRpc(
+            'katib.create_katib_experiment',
+            runKatibArgs,
+          );
+        } catch (error) {
+          // stop deploy button icon spin
+          this.setState({ runDeployment: false });
+          this.updateDeployProgress(_deployIndex, {
+            katib: { status: 'error' },
+          });
+          throw error;
+        }
+        this.pollKatib(_deployIndex, katibExperiment);
       } else {
         this.updateDeployProgress(_deployIndex, { showRunProgress: true });
         const runPipelineArgs: IRunPipelineArgs = {
@@ -1216,6 +1272,22 @@ export class KubeflowKaleLeftPanel extends React.Component<IProps, IState> {
       this.updateDeployProgress(_deployIndex, { runPipeline: run });
       if (run && (run.status === 'Running' || run.status === null)) {
         setTimeout(() => this.pollRun(_deployIndex, run), 2000);
+      }
+    });
+  }
+
+  pollKatib(_deployIndex: number, katibExperiment: IKatibExperiment) {
+    const getExperimentArgs: any = {
+      experiment: katibExperiment.name,
+      namespace: katibExperiment.namespace,
+    };
+    this.executeRpcAndShowRPCError(
+      'katib.get_experiment',
+      getExperimentArgs,
+    ).then(katib => {
+      this.updateDeployProgress(_deployIndex, { katib });
+      if (katib && katib.status !== 'Succeeded' && katib.status !== 'Failed') {
+        setTimeout(() => this.pollKatib(_deployIndex, katibExperiment), 5000);
       }
     });
   }

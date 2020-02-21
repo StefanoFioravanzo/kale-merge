@@ -31,6 +31,16 @@ import StatusRunning from '../../icons/statusRunning';
 import TerminatedIcon from '../../icons/statusTerminated';
 import { DeployProgressState } from './DeploysProgress';
 import NotebookUtils from '../../utils/NotebookUtils';
+import { IKatibExperiment } from '../LeftPanelWidget';
+
+enum KatibExperimentStatus {
+  CREATED = 'Created',
+  RUNNING = 'Running',
+  RESTARTING = 'Restarting',
+  SUCCEEDED = 'Succeeded',
+  FAILED = 'Failed',
+  UNKNOWN = 'Unknown',
+}
 
 // From kubeflow/pipelines repo
 enum PipelineStatus {
@@ -196,6 +206,64 @@ export const DeployProgress: React.FunctionComponent<DeployProgress> = props => 
     );
   };
 
+  const getKatibLink = (katib: IKatibExperiment) => {
+    // link: /_/katib/#/katib/hp_monitor/<namespace>/<name>
+    if (!katib.name && !katib.namespace) {
+      return '#';
+    }
+    return `${window.location.origin}/_/katib/#/katib/hp_monitor/${katib.namespace}/${katib.name}`;
+  };
+
+  const getKatibText = (katib: IKatibExperiment) => {
+    switch (katib.status) {
+      case KatibExperimentStatus.FAILED:
+        return 'Failed';
+      case KatibExperimentStatus.SUCCEEDED:
+        return 'Done';
+      default:
+        return 'View';
+    }
+  };
+
+  const getKatibComponent = (katib: IKatibExperiment) => {
+    let IconComponent: any = UnknownIcon;
+    let iconColor = '#5f6368';
+
+    switch (katib.status) {
+      case KatibExperimentStatus.FAILED:
+        IconComponent = ErrorIcon;
+        iconColor = color.errorText;
+        break;
+      case KatibExperimentStatus.CREATED:
+      case KatibExperimentStatus.RUNNING:
+      case KatibExperimentStatus.RESTARTING:
+        IconComponent = StatusRunning;
+        iconColor = color.blue;
+        break;
+      case KatibExperimentStatus.SUCCEEDED:
+        IconComponent = SuccessIcon;
+        iconColor = color.success;
+        break;
+      default:
+        break;
+    }
+
+    return (
+      <React.Fragment>
+        {getKatibText(katib)}
+        <IconComponent style={{ color: iconColor, height: 18, width: 18 }} />
+      </React.Fragment>
+    );
+  };
+
+  const getKatibKfpExperimentLink = (experimentId: string) => {
+    // link: /_/pipeline/#/experiments/details/<ud>
+    if (!experimentId) {
+      return '#';
+    }
+    return `${window.location.origin}/_/pipeline/#/experiments/details/${experimentId}`;
+  };
+
   const getSnapshotTpl = () => {
     if (!props.task) {
       return (
@@ -338,6 +406,53 @@ export const DeployProgress: React.FunctionComponent<DeployProgress> = props => 
     runTpl = <LinearProgress color="primary" />;
   }
 
+  let katibTpl;
+  if (!props.katib) {
+    katibTpl = <LinearProgress color="primary" />;
+  } else if (props.katib.status == 'error') {
+    katibTpl = (
+      <React.Fragment>
+        <ErrorIcon style={{ color: color.errorText, height: 18, width: 18 }} />
+      </React.Fragment>
+    );
+  } else {
+    katibTpl = (
+      <React.Fragment>
+        <a
+          href={getKatibLink(props.katib)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {getKatibComponent(props.katib)}
+        </a>
+      </React.Fragment>
+    );
+  }
+
+  let katibKfpExpTpl;
+  if (!props.katibKFPExperiment) {
+    katibKfpExpTpl = <LinearProgress color="primary" />;
+  } else if (props.katibKFPExperiment.id !== 'error') {
+    katibKfpExpTpl = (
+      <React.Fragment>
+        <a
+          href={getKatibKfpExperimentLink(props.katibKFPExperiment.id)}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          View
+          <LaunchIcon style={{ fontSize: '1rem' }} />
+        </a>
+      </React.Fragment>
+    );
+  } else {
+    katibKfpExpTpl = (
+      <React.Fragment>
+        <ErrorIcon style={{ color: color.errorText, height: 18, width: 18 }} />
+      </React.Fragment>
+    );
+  }
+
   return (
     <div className="deploy-progress">
       <div
@@ -401,6 +516,22 @@ export const DeployProgress: React.FunctionComponent<DeployProgress> = props => 
             {runTpl}
             {getWarningBadge('Run Warnings', props.runWarnings)}
           </div>
+        </div>
+      ) : null}
+
+      {props.showKatibKFPExperiment ? (
+        <div className="deploy-progress-row">
+          <div className="deploy-progress-label">
+            Creating KFP Experiment...{' '}
+          </div>
+          <div className="deploy-progress-value">{katibKfpExpTpl}</div>
+        </div>
+      ) : null}
+
+      {props.showKatibProgress ? (
+        <div className="deploy-progress-row">
+          <div className="deploy-progress-label">Running HP tuning... </div>
+          <div className="deploy-progress-value">{katibTpl}</div>
         </div>
       ) : null}
     </div>
