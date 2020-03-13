@@ -15,6 +15,7 @@
 import os
 import re
 import json
+import time
 import logging
 import tabulate
 import kubernetes.client as k8s
@@ -289,3 +290,16 @@ def get_run_uuid():
 def is_workspace_dir(directory):
     """Check dir path is the container's home folder."""
     return directory == os.getenv("HOME")
+
+
+def patch_pod(name, namespace, patch):
+    """Patch a pod."""
+    k8s_client = _get_k8s_v1_client()
+    for retry in range(5):
+        try:
+            k8s_client.patch_namespaced_pod(name=name, namespace=namespace,
+                                            body=patch)
+            return
+        except Exception as e:
+            print(e)
+            time.sleep(0.1)
