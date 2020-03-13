@@ -246,6 +246,7 @@ def snapshot_pipeline_step(pipeline, step, nb_path, before=True):
                                  "type": "markdown"}]}
         with open("/mlpipeline-ui-metadata.json", "w") as f:
             json.dump(metadata, f)
+    return task_info
 
 
 def get_workflow_name(pod_name, namespace):

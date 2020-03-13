@@ -13,7 +13,9 @@ def {{ step_name }}({%- for arg in parameters_names -%}
     '''.format({{ parameters_names|join(', ') }})
 {% endif %}
 {%- if auto_snapshot %}
+    from kale.utils import mlmd_utils as _kale_mlmd_utils
     from kale.utils import pod_utils as _kale_pod_utils
+    _kale_mlmd_utils.submit_input_rok_artifacts()
     _kale_pod_utils.snapshot_pipeline_step(
         "{{ pipeline_name }}",
         "{{ step_name }}",
@@ -69,9 +71,10 @@ def {{ step_name }}({%- for arg in parameters_names -%}
 {% endif -%}
 
 {%- if auto_snapshot %}
-    _kale_pod_utils.snapshot_pipeline_step(
+    _rok_snapshot_task = _kale_pod_utils.snapshot_pipeline_step(
         "{{ pipeline_name }}",
         "{{ step_name }}",
         "{{ nb_path }}",
         before=False)
+    _kale_mlmd_utils.submit_output_rok_artifact(_rok_snapshot_task)
 {% endif %}
