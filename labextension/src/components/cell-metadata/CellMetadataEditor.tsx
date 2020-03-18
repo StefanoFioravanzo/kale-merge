@@ -270,6 +270,7 @@ export class CellMetadataEditor extends React.Component<IProps, IState> {
    * Event triggered when the the Annotations dialog is closed
    */
   updateCurrentAnnotations = (annotations: { [id: string]: string }) => {
+    console.log(annotations);
     let currentCellMetadata = {
       blockName: this.props.stepName,
       prevBlockNames: this.props.stepDependencies,

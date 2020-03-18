@@ -28,6 +28,12 @@ import {
 } from '@material-ui/core';
 import ColorUtils from './ColorUtils';
 
+const GPU_TYPES = [
+  { value: 'nvidia', label: 'Nvidia' },
+  { value: 'amd', label: 'AMD' },
+];
+
+
 interface AnnotationsDialog {
   open: boolean;
   stepName: string;
