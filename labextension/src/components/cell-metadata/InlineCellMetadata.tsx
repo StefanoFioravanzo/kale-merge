@@ -235,6 +235,7 @@ export class InlineCellsMetadata extends React.Component<IProps, IState> {
           cellElement={this.props.notebook.content.node.childNodes[index]}
           blockName={tags.blockName}
           stepDependencies={tags.prevBlockNames}
+          annotations={tags.annotations || {}}
           previousBlockName={previousBlockName}
           cellIndex={index}
         />,

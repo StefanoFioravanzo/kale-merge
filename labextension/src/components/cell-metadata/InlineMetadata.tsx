@@ -28,6 +28,7 @@ interface IProps {
   blockName: string;
   previousBlockName: string;
   stepDependencies: string[];
+  annotations: { [id: string]: string };
   cellElement: any;
   cellIndex: number;
 }
@@ -204,6 +205,25 @@ export class InlineMetadata extends React.Component<IProps, IState> {
     return ColorUtils.getColor(name);
   }
 
+  createAnnotationsText() {
+    return (this.props.annotations.gpu_enabled || '') === 'true' ? (
+      <React.Fragment>
+        <p style={{ fontStyle: 'italic', marginLeft: '10px' }}>
+          {this.props.annotations.gpu_type
+            ? 'GPU Type: ' + this.props.annotations.gpu_type
+            : ''}
+        </p>
+        <p style={{ fontStyle: 'italic', marginLeft: '10px' }}>
+          {this.props.annotations.gpu_count
+            ? 'GPU Count: ' + this.props.annotations.gpu_count
+            : ''}
+        </p>
+      </React.Fragment>
+    ) : (
+      ''
+    );
+  }
+
   /**
    * Create a list of div dots that represent the dependencies of the current
    * block
@@ -275,6 +295,8 @@ export class InlineMetadata extends React.Component<IProps, IState> {
               ''
             )}
             {this.state.dependencies}
+
+            {this.createAnnotationsText()}
           </div>
 
           <div

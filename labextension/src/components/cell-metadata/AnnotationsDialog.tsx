@@ -33,7 +33,6 @@ const GPU_TYPES = [
   { value: 'amd', label: 'AMD' },
 ];
 
-
 interface AnnotationsDialog {
   open: boolean;
   stepName: string;
