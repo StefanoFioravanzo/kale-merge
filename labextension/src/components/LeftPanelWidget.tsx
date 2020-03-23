@@ -1160,25 +1160,49 @@ export class KubeflowKaleLeftPanel extends React.Component<IProps, IState> {
       }
     }
 
+    if (!uploadPipeline) {
+      this.setState({ runDeployment: false });
+      this.updateDeployProgress(_deployIndex, { pipeline: false });
+      console.error(
+        '`uploadPipeline` is null even if it should have a valid ' +
+          'pipeline name and id.',
+      );
+      return;
+    }
+
     // RUN
     if (this.state.deploymentType === 'run') {
-      this.updateDeployProgress(_deployIndex, { showRunProgress: true });
-      const runPipelineArgs: IRunPipelineArgs = {
-        pipeline_metadata: compileNotebook.pipeline_metadata,
-        pipeline_id: uploadPipeline.pipeline.id,
-      };
-      const runPipeline = await this.executeRpcAndShowRPCError(
-        'kfp.run_pipeline',
-        runPipelineArgs,
-      );
-      if (runPipeline) {
-        this.updateDeployProgress(_deployIndex, { runPipeline });
-        this.pollRun(_deployIndex, runPipeline);
+      if (metadata.katib_run) {
+        const runKatibArgs: any = {
+          pipeline_id: uploadPipeline.pipeline.id,
+          pipeline_metadata: metadata,
+        };
+        try {
+          await this.executeRpc('katib.create_katib_experiment', runKatibArgs);
+        } catch (error) {
+          // stop deploy button icon spin
+          this.setState({ runDeployment: false });
+          throw error;
+        }
       } else {
-        this.updateDeployProgress(_deployIndex, {
-          showRunProgress: false,
-          runPipeline: false,
-        });
+        this.updateDeployProgress(_deployIndex, { showRunProgress: true });
+        const runPipelineArgs: IRunPipelineArgs = {
+          pipeline_metadata: compileNotebook.pipeline_metadata,
+          pipeline_id: uploadPipeline.pipeline.id,
+        };
+        const runPipeline = await this.executeRpcAndShowRPCError(
+          'kfp.run_pipeline',
+          runPipelineArgs,
+        );
+        if (runPipeline) {
+          this.updateDeployProgress(_deployIndex, { runPipeline });
+          this.pollRun(_deployIndex, runPipeline);
+        } else {
+          this.updateDeployProgress(_deployIndex, {
+            showRunProgress: false,
+            runPipeline: false,
+          });
+        }
       }
     }
     // stop deploy button icon spin
@@ -1646,6 +1670,7 @@ export class KubeflowKaleLeftPanel extends React.Component<IProps, IState> {
             <SplitDeployButton
               running={this.state.runDeployment}
               handleClick={this.activateRunDeployState}
+              katibRun={this.state.metadata.katib_run}
             />
           </div>
 
