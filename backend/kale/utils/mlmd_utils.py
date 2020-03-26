@@ -58,6 +58,7 @@ ROK_SNAPSHOT_ARTIFACT_PROPERTIES = {"name": metadata_store_pb2.STRING,
                                     "URL": metadata_store_pb2.STRING,
                                     "hash": metadata_store_pb2.STRING}
 MLMD_EXECUTION_HASH_PROPERTY_KEY = "arrikto.com/execution-hash-key"
+MLMD_EXECUTION_POD_NAME_PROPERTY_KEY = "pod_name"
 
 
 # Kubernetes
@@ -234,8 +235,13 @@ def _create_execution_in_run_context():
                       metadata_store_pb2.Value(string_value=pipeline_name),
                   "component_id":
                       metadata_store_pb2.Value(string_value=component_id)}
-    custom_props = {MLMD_EXECUTION_HASH_PROPERTY_KEY:
-                    metadata_store_pb2.Value(string_value=execution_hash)}
+
+    exec_hash_mlmd_value = metadata_store_pb2.Value(
+        string_value=execution_hash)
+    pod_name_mlmd_value = metadata_store_pb2.Value(
+        string_value=_get_pod_name())
+    custom_props = {MLMD_EXECUTION_HASH_PROPERTY_KEY: exec_hash_mlmd_value,
+                    MLMD_EXECUTION_POD_NAME_PROPERTY_KEY: pod_name_mlmd_value}
     execution = _create_execution_with_type(type_name=component_id,
                                             property_types=property_types,
                                             properties=properties,
