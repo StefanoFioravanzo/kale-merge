@@ -398,6 +398,15 @@ export const KatibDialog: React.FunctionComponent<KabitDialog> = props => {
     return value;
   };
 
+  const updateCounts = (
+    field: 'maxTrialCount' | 'maxFailedTrialCount' | 'parallelTrialCount',
+  ) => (value: string) => {
+    props.updateKatibMetadata({
+      ...props.katibMetadata,
+      [field]: Number(value),
+    });
+  };
+
   const getAlgorithmSetting = (settingName: string) => {
     const setting = (
       props.katibMetadata.algorithm.algorithmSettings || []
@@ -845,6 +854,49 @@ export const KatibDialog: React.FunctionComponent<KabitDialog> = props => {
             label={'Goal'}
             value={props.katibMetadata.objective.goal || ''}
             updateValue={updateObjective('goal')}
+            style={{ marginLeft: '4px', marginRight: '4px', width: 'auto' }}
+          />
+        </Grid>
+      </Grid>
+
+      {getDialogHeader(
+        'Run Parameters',
+        <a
+          target="_blank"
+          href="https://www.kubeflow.org/docs/components/hyperparameter-tuning/experiment/#configuration-spec"
+        >
+          More Info...
+        </a>,
+      )}
+
+      <Grid container direction="row" justify="center" alignItems="center">
+        <Grid item xs={4}>
+          <MaterialInput
+            validation="int"
+            variant={'outlined'}
+            label={'Parallel Trial Count'}
+            value={props.katibMetadata.parallelTrialCount}
+            updateValue={updateCounts('parallelTrialCount')}
+            style={{ marginLeft: '4px', marginRight: '4px', width: 'auto' }}
+          />
+        </Grid>
+        <Grid item xs={4}>
+          <MaterialInput
+            validation="int"
+            variant={'outlined'}
+            label={'Max Trial Count'}
+            value={props.katibMetadata.maxTrialCount}
+            updateValue={updateCounts('maxTrialCount')}
+            style={{ marginLeft: '4px', marginRight: '4px', width: 'auto' }}
+          />
+        </Grid>
+        <Grid item xs={4}>
+          <MaterialInput
+            validation="int"
+            variant={'outlined'}
+            label={'max Failed Trial Count'}
+            value={props.katibMetadata.maxFailedTrialCount}
+            updateValue={updateCounts('maxFailedTrialCount')}
             style={{ marginLeft: '4px', marginRight: '4px', width: 'auto' }}
           />
         </Grid>

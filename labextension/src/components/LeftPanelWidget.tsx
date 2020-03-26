@@ -196,6 +196,9 @@ export interface IKatibMetadata {
   parameters: IKatibParameter[];
   objective: IKatibObjective;
   algorithm: IKatibAlgorithm;
+  maxTrialCount: number;
+  maxFailedTrialCount: number;
+  parallelTrialCount: number;
 }
 
 const DefaultKatibMetadata: IKatibMetadata = {
@@ -207,6 +210,9 @@ const DefaultKatibMetadata: IKatibMetadata = {
   algorithm: {
     algorithmName: 'grid',
   },
+  maxTrialCount: 12,
+  maxFailedTrialCount: 3,
+  parallelTrialCount: 3,
 };
 
 export interface IVolumeMetadata {
