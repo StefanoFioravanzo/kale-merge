@@ -922,6 +922,10 @@ export class KubeflowKaleLeftPanel extends React.Component<IProps, IState> {
           volumes: metadataVolumes,
           katib_run:
             notebookMetadata['katib_run'] || DefaultState.metadata.katib_run,
+          katib_metadata: {
+            ...DefaultKatibMetadata,
+            ...(notebookMetadata['katib_metadata'] || {}),
+          },
         };
         this.setState({
           volumes: stateVolumes,
