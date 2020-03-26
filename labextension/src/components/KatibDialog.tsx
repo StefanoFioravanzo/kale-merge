@@ -405,6 +405,29 @@ export const KatibDialog: React.FunctionComponent<KabitDialog> = props => {
     return setting.length > 0 ? setting[0].value : undefined;
   };
 
+  const getDialogHeader = (headerName: string, helpContent: any) => {
+    return (
+      <React.Fragment>
+        <Grid
+          container
+          direction="row"
+          justify="flex-start"
+          alignItems="center"
+        >
+          <div className="katib-dialog-header kale-header">{headerName}</div>
+          <LightTooltip
+            title={helpContent}
+            placement="top-start"
+            interactive={true}
+            TransitionComponent={Zoom}
+          >
+            <Help className="kale-header katib-headers-tooltip katib-dialog-header" />
+          </LightTooltip>
+        </Grid>
+      </React.Fragment>
+    );
+  };
+
   const katibParameters = props.katibMetadata.parameters || [];
   const parametersControls = loading
     ? ''
@@ -646,47 +669,27 @@ export const KatibDialog: React.FunctionComponent<KabitDialog> = props => {
     </React.Fragment>
   ) : (
     <React.Fragment>
-      <Grid container direction="row" justify="flex-start" alignItems="center">
-        <div className="katib-dialog-header kale-header">
-          Search Space Parameters
-        </div>
-        <LightTooltip
-          title={
-            <a
-              target="_blank"
-              href="https://www.kubeflow.org/docs/components/hyperparameter-tuning/experiment/#configuration-spec"
-            >
-              More Info...
-            </a>
-          }
-          placement="top-start"
-          interactive={true}
-          TransitionComponent={Zoom}
+      {getDialogHeader(
+        'Search Space Parameters',
+        <a
+          target="_blank"
+          href="https://www.kubeflow.org/docs/components/hyperparameter-tuning/experiment/#configuration-spec"
         >
-          <Help className="kale-header katib-headers-tooltip katib-dialog-header" />
-        </LightTooltip>
-      </Grid>
+          More Info...
+        </a>,
+      )}
 
       {parametersControls}
 
-      <Grid container direction="row" justify="flex-start" alignItems="center">
-        <div className="katib-dialog-header kale-header">Search Algorithm</div>
-        <LightTooltip
-          title={
-            <a
-              target="_blank"
-              href="https://www.kubeflow.org/docs/components/hyperparameter-tuning/experiment/#search-algorithms"
-            >
-              More Info...
-            </a>
-          }
-          placement="top-start"
-          interactive={true}
-          TransitionComponent={Zoom}
+      {getDialogHeader(
+        'Search Algorithm',
+        <a
+          target="_blank"
+          href="https://www.kubeflow.org/docs/components/hyperparameter-tuning/experiment/#search-algorithms"
         >
-          <Help className="kale-header katib-headers-tooltip katib-dialog-header" />
-        </LightTooltip>
-      </Grid>
+          More Info...
+        </a>,
+      )}
 
       <MaterialSelect
         variant="outlined"
@@ -799,24 +802,15 @@ export const KatibDialog: React.FunctionComponent<KabitDialog> = props => {
         ''
       )}
 
-      <Grid container direction="row" justify="flex-start" alignItems="center">
-        <div className="katib-dialog-header kale-header">Search Objective</div>
-        <LightTooltip
-          title={
-            <a
-              target="_blank"
-              href="https://www.kubeflow.org/docs/components/hyperparameter-tuning/experiment/#configuration-spec"
-            >
-              More Info...
-            </a>
-          }
-          placement="top-start"
-          interactive={true}
-          TransitionComponent={Zoom}
+      {getDialogHeader(
+        'Search Objective',
+        <a
+          target="_blank"
+          href="https://www.kubeflow.org/docs/components/hyperparameter-tuning/experiment/#configuration-spec"
         >
-          <Help className="kale-header katib-headers-tooltip katib-dialog-header" />
-        </LightTooltip>
-      </Grid>
+          More Info...
+        </a>,
+      )}
 
       <Grid container direction="row" justify="center" alignItems="center">
         <Grid item xs={4}>
