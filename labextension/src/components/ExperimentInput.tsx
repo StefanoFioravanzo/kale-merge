@@ -18,11 +18,10 @@ import * as React from 'react';
 import { MaterialInput, MaterialSelect } from './Components';
 import { ISelectOption, IExperiment, NEW_EXPERIMENT } from './LeftPanelWidget';
 
-const regex: string = '^[a-zA-Z][-_a-zA-z0-9\\s]*$';
+const regex: string = '^[a-z0-9]([-a-z0-9]*[a-z0-9])?$';
 const regexErrorMsg: string =
   'Experiment name may consist of alphanumeric ' +
-  "characters, '-', '_' and white spaces, and " +
-  'must begin with letter.';
+  "characters, '-', and  must start and end with an alphanumeric character.";
 
 interface IExperimentInput {
   updateValue: Function;
