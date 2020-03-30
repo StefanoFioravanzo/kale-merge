@@ -60,6 +60,11 @@ ROK_SNAPSHOT_ARTIFACT_PROPERTIES = {"name": metadata_store_pb2.STRING,
 MLMD_EXECUTION_HASH_PROPERTY_KEY = "arrikto.com/execution-hash-key"
 MLMD_EXECUTION_POD_NAME_PROPERTY_KEY = "pod_name"
 
+KALE_EXECUTION_STATE_KEY = "kubeflow-kale.org/state"
+KALE_EXECUTION_STATE_RUNNING = "RUNNING"
+KALE_EXECUTION_STATE_COMPLETED = "COMPLETE"
+KALE_EXECUTION_STATE_CACHED = "CACHED"
+
 
 # Kubernetes
 pod_name = None
@@ -150,14 +155,27 @@ def _create_artifact_with_type(uri: str, type_name: str,
 
 def _create_execution_with_type(type_name: str, property_types: dict = None,
                                 properties: dict = None,
-                                custom_properties: dict = None):
+                                custom_properties: dict = None,
+                                state=None):
     execution_type = _get_or_create_execution_type(type_name=type_name,
                                                    properties=property_types)
     execution = metadata_store_pb2.Execution(
         type_id=execution_type.id, properties=properties,
-        custom_properties=custom_properties)
+        custom_properties=custom_properties,
+        last_known_state=state)
     execution.id = _get_mlmd_store().put_executions([execution])[0]
     return execution
+
+
+def _update_execution():
+    execution = _get_execution()
+    _get_mlmd_store().put_executions([execution])
+
+
+def _update_execution_state(state: str = None):
+    execution = _get_execution()
+    execution.custom_properties[KALE_EXECUTION_STATE_KEY].string_value = state
+    _update_execution()
 
 
 def _get_or_create_context_with_type(context_name: str, type_name: str,
@@ -235,17 +253,22 @@ def _create_execution_in_run_context():
                       metadata_store_pb2.Value(string_value=pipeline_name),
                   "component_id":
                       metadata_store_pb2.Value(string_value=component_id)}
+    state = metadata_store_pb2.Execution.RUNNING
 
     exec_hash_mlmd_value = metadata_store_pb2.Value(
         string_value=execution_hash)
     pod_name_mlmd_value = metadata_store_pb2.Value(
         string_value=_get_pod_name())
+    state_mlmd_value = metadata_store_pb2.Value(
+        string_value=KALE_EXECUTION_STATE_RUNNING)
     custom_props = {MLMD_EXECUTION_HASH_PROPERTY_KEY: exec_hash_mlmd_value,
-                    MLMD_EXECUTION_POD_NAME_PROPERTY_KEY: pod_name_mlmd_value}
+                    MLMD_EXECUTION_POD_NAME_PROPERTY_KEY: pod_name_mlmd_value,
+                    KALE_EXECUTION_STATE_KEY: state_mlmd_value}
     execution = _create_execution_with_type(type_name=component_id,
                                             property_types=property_types,
                                             properties=properties,
-                                            custom_properties=custom_props)
+                                            custom_properties=custom_props,
+                                            state=state)
 
     run_context = _get_run_context()
     association = metadata_store_pb2.Association(execution_id=execution.id,
@@ -537,3 +560,8 @@ def submit_input_rok_artifacts():
         input_ids.append(artifact.id)
         _link_artifact_as_input(artifact)
     _patch_artifact_inputs(input_ids)
+
+
+def mark_execution_complete():
+    """Mark MLMD Execution's state as COMPLETE."""
+    _update_execution_state("COMPLETE")

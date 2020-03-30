@@ -14,3 +14,4 @@ def test():
         "/path/to/nb",
         before=False)
     _kale_mlmd_utils.submit_output_rok_artifact(_rok_snapshot_task)
+    _kale_mlmd_utils.mark_execution_complete()
