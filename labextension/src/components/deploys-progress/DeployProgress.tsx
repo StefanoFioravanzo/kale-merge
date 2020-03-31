@@ -453,6 +453,37 @@ export const DeployProgress: React.FunctionComponent<DeployProgress> = props => 
     );
   }
 
+  let katibRunsTpl;
+  if (!props.katib || props.katib.trials === 0) {
+    katibRunsTpl = (
+      <React.Fragment>
+        <div className="deploy-progress-label">
+          Waiting for pipeline runs...{' '}
+        </div>
+        <div className="deploy-progress-value">
+          <LinearProgress color="primary" />
+        </div>
+      </React.Fragment>
+    );
+  } else {
+    // we have some katib trials
+    katibRunsTpl = (
+      <React.Fragment>
+        <div className="deploy-progress-label">
+          <p>
+            {'    '}Running: {props.katib.trialsRunning}
+          </p>
+          <p>
+            {'    '}Succeeded: {props.katib.trialsSucceeded}
+          </p>
+          <p>
+            {'    '}Failed: {props.katib.trialsFailed}
+          </p>
+        </div>
+      </React.Fragment>
+    );
+  }
+
   return (
     <div className="deploy-progress">
       <div
@@ -529,9 +560,17 @@ export const DeployProgress: React.FunctionComponent<DeployProgress> = props => 
       ) : null}
 
       {props.showKatibProgress ? (
-        <div className="deploy-progress-row">
-          <div className="deploy-progress-label">Running HP tuning... </div>
-          <div className="deploy-progress-value">{katibTpl}</div>
+        <div>
+          <div
+            className="deploy-progress-row"
+            style={{ borderBottom: 'transparent', paddingBottom: 0 }}
+          >
+            <div className="deploy-progress-label">
+              Running Katib Experiment...{' '}
+            </div>
+            <div className="deploy-progress-value">{katibTpl}</div>
+          </div>
+          <div className="deploy-progress-row">{katibRunsTpl}</div>
         </div>
       ) : null}
     </div>

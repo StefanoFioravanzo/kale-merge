@@ -279,6 +279,9 @@ export interface IKatibExperiment {
   namespace?: string;
   status: string;
   trials?: number;
+  trialsFailed?: number;
+  trialsRunning?: number;
+  trialsSucceeded?: number;
   maxTrialCount?: number;
 }
 
