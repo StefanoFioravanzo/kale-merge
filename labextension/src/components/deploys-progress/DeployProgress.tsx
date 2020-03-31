@@ -290,7 +290,7 @@ export const DeployProgress: React.FunctionComponent<DeployProgress> = props => 
     let getLink: (task: any) => string = () => '#';
     let message = props.task.message;
     let IconComponent: any = UnknownIcon;
-    let iconColor = color.terminated;
+    let iconColor = color.blue;
 
     switch (props.task.status) {
       case 'success':
