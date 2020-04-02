@@ -440,7 +440,7 @@ export const DeployProgress: React.FunctionComponent<DeployProgress> = props => 
           target="_blank"
           rel="noopener noreferrer"
         >
-          View
+          Done
           <LaunchIcon style={{ fontSize: '1rem' }} />
         </a>
       </React.Fragment>
