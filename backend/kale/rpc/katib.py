@@ -60,8 +60,8 @@ def _define_katib_experiment(name, katib_spec, trial_parameters):
     katib_experiment = {"apiVersion": "kubeflow.org/v1alpha3",
                         "kind": "Experiment",
                         "metadata": {"labels": {
-                                         "controller-tools.k8s.io": "1.0"},
-                                     "name": name},
+                            "controller-tools.k8s.io": "1.0"},
+                            "name": name},
                         "spec": katib_spec}
 
     raw_template = RAW_TEMPLATE.replace("{{", "<<<").replace("}}", ">>>")
@@ -142,11 +142,12 @@ def create_katib_experiment(request, pipeline_id, pipeline_metadata):
     # required first-layer-fields are set
     katib_spec = _sanitize_katib_spec(request, katib_spec)
 
-    trial_parameters = {"image": "gcr.io/arrikto-playground/stefano/kale/katib-trial:v.0.4.0-36-ge73725a",
-                        "pipeline_id": pipeline_id,
-                        "run_name": katib_name,
-                        "experiment_name": pipeline_metadata.get(
-                            "experiment_name")}
+    trial_parameters = {
+        "image": "gcr.io/arrikto-playground/stefano/kale/katib-trial:v.0.4.0-36-ge73725a",
+        "pipeline_id": pipeline_id,
+        "run_name": katib_name,
+        "experiment_name": pipeline_metadata.get(
+            "experiment_name")}
 
     katib_experiment = _define_katib_experiment(katib_name, katib_spec,
                                                 trial_parameters)
@@ -184,11 +185,15 @@ def get_experiment(request, experiment, namespace):
             "namespace": namespace,
             "status": _get_experiment_status(exp["status"]),
             "trials": exp["status"].get("trials", 0),
+            "trialsFailed": exp["status"].get("trialsFailed", 0),
+            "trialsRunning": exp["status"].get("trialsRunning", 0),
+            "trialsSucceeded": exp["status"].get("trialsSucceeded", 0),
             "maxTrialCount": exp["spec"]["maxTrialCount"]}
 
 
 def _get_experiment_status(experiment_status):
     """Retrieve an experiment's status."""
+
     def _is_status(condition, status):
         return condition["type"] == status and condition["status"] == "True"
 
