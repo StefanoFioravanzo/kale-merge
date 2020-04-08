@@ -20,6 +20,9 @@ metadata:
   namespace: {{.NameSpace}}
 spec:
   template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "false"
     spec:
       restartPolicy: Never
       containers:
