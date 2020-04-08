@@ -131,6 +131,7 @@ def create_katib_experiment(request, pipeline_id, pipeline_metadata):
     pipeline_name = kfp_utils.get_pipeline(pipeline_id).name
     katib_name = "%s-katib-%s" % (utils.sanitize_k8s_name(pipeline_name),
                                   utils.random_string())
+    katib_name = pipeline_metadata.get("experiment_name")
 
     katib_spec = pipeline_metadata.get("katib_metadata", None)
     if not katib_spec:
