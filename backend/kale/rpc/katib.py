@@ -41,8 +41,11 @@ spec:
                 )"
 """
 
+trans_id = None
+
 
 def _get_k8s_co_client():
+    global trans_id
     try:
         kubernetes.config.load_incluster_config()
     except Exception:  # Not in a notebook server
@@ -50,7 +53,7 @@ def _get_k8s_co_client():
             kubernetes.config.load_kube_config()
         except Exception:
             raise RPCUnhandledError(details="Could not load Kubernetes config",
-                                    trans_id=request.trans_id)
+                                    trans_id=trans_id)
 
     return kubernetes.client.CustomObjectsApi()
 
@@ -120,6 +123,8 @@ def _sanitize_katib_spec(request, katib_spec):
 
 def create_katib_experiment(request, pipeline_id, pipeline_metadata):
     """Define and launch a Katib experiment."""
+    global trans_id
+    trans_id = request.trans_id
     try:
         namespace = pod_utils.get_namespace()
     except Exception:
