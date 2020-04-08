@@ -256,9 +256,10 @@ def _get_logger():
     global _logger
     if not _logger:
         fmt = "%(asctime)s %(module)s:%(lineno)d [%(levelname)s] %(message)s"
+        datefmt = "%Y-%m-%dT%H:%M:%SZ"
         stream_handler = logging.StreamHandler()
         stream_handler.setLevel(logging.DEBUG)
-        stream_handler.setFormatter(logging.Formatter(fmt))
+        stream_handler.setFormatter(logging.Formatter(fmt, datefmt))
 
         _logger = logging.getLogger(__name__)
         _logger.propagate = 0
