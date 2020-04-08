@@ -4,7 +4,6 @@ from kubernetes.client.rest import ApiException
 from kale.utils import utils, pod_utils, kfp_utils
 from kale.rpc.errors import RPCNotFoundError, RPCUnhandledError
 
-
 KATIB_PARAMETER_NAMES = ("objective", "algorithm", "parallelTrialCount",
                          "maxTrialCount", "maxFailedTrialCount", "parameters")
 KATIB_DEFAULTS = {"parallelTrialCount": 3, "maxTrialCount": 12,
@@ -19,6 +18,7 @@ metadata:
   name: {{.Trial}}
   namespace: {{.NameSpace}}
 spec:
+  backoffLimit: 0
   template:
     metadata:
       annotations:
