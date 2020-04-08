@@ -1,0 +1,6 @@
+FROM python:3.6
+
+ARG ORG="kubeflow-kale"
+ARG BRANCH="master"
+RUN git clone -b ${BRANCH} https://github.com/${ORG}/kale /kale && \
+    pip3 install --upgrade /kale
