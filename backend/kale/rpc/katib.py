@@ -142,7 +142,7 @@ def create_katib_experiment(request, pipeline_id, pipeline_metadata):
     # required first-layer-fields are set
     katib_spec = _sanitize_katib_spec(request, katib_spec)
 
-    trial_parameters = {"image": "gcr.io/arrikto-playground/elikatsis/tensorflow-notebook:katib-trial",
+    trial_parameters = {"image": "gcr.io/arrikto-playground/stefano/kale/katib-trial:v.0.4.0-36-ge73725a",
                         "pipeline_id": pipeline_id,
                         "run_name": katib_name,
                         "experiment_name": pipeline_metadata.get(
