@@ -67,6 +67,9 @@ def parse_metadata(notebook_metadata):
     metadata = copy.deepcopy(DEFAULT_METADATA)
     metadata.update(validated_notebook_metadata)
 
+    if not re.match(KALE_STEP_NAME_REGEX, metadata['experiment_name']):
+        raise ValueError("Experiment name  {}".format(KALE_NAME_MSG))
+
     if not re.match(KALE_STEP_NAME_REGEX, metadata['pipeline_name']):
         raise ValueError("Pipeline name  {}".format(KALE_NAME_MSG))
 
