@@ -11,8 +11,11 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
+
 import os
+import sys
 import json
+
 import tempfile
 import importlib.util
 import logging
@@ -388,7 +391,8 @@ def create_and_wait_kfp_run(pipeline_id: str, run_name: str,
     if status != "Succeeded":
         logger.warning("KFP run did not run successfully. No metrics to"
                        " return.")
-        return {}
+        # exit gracefully with error
+        sys.exit(-1)
 
     # Retrieve metrics
     run_metrics = _get_kfp_run_metrics(run_id, namespace)
