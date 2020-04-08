@@ -148,7 +148,7 @@ def create_katib_experiment(request, pipeline_id, pipeline_metadata):
     katib_spec = _sanitize_katib_spec(request, katib_spec)
 
     trial_parameters = {
-        "image": "gcr.io/arrikto-playground/stefano/kale/katib-trial:v.0.4.0-36-ge73725a",
+        "image": "gcr.io/arrikto-playground/elikatsis/kale/trials:1b82d32",
         "pipeline_id": pipeline_id,
         "experiment_name": pipeline_metadata.get(
             "experiment_name")}
