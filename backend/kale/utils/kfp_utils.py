@@ -244,6 +244,12 @@ def get_run(run_id: str, host: str = None, namespace: str = "kubeflow"):
     return client.get_run(run_id)
 
 
+def get_pipeline(pipeline_id: str, host: str = None,
+                 namespace: str = "kubeflow"):
+    client = _get_kfp_client(host, namespace)
+    return client.get_pipeline(pipeline_id)
+
+
 # TODO: Use a global setup logging function
 def _get_logger():
     """Setup logging."""
