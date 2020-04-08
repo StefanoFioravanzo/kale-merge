@@ -33,7 +33,7 @@ spec:
                 import create_and_wait_kfp_run;\
                 create_and_wait_kfp_run(\
                     pipeline_id='{pipeline_id}',\
-                    run_name='{run_name}',\
+                    run_name='{{.Trial}}',\
                     experiment_name='{experiment_name}',\
                     {{- with .HyperParameters }} {{- range .}}
                         {{.Name}}='{{.Value}}',\
@@ -145,7 +145,6 @@ def create_katib_experiment(request, pipeline_id, pipeline_metadata):
     trial_parameters = {
         "image": "gcr.io/arrikto-playground/stefano/kale/katib-trial:v.0.4.0-36-ge73725a",
         "pipeline_id": pipeline_id,
-        "run_name": katib_name,
         "experiment_name": pipeline_metadata.get(
             "experiment_name")}
 
